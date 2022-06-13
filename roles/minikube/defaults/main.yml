@@ -1,0 +1,3 @@
+---
+minikube_user: minikube
+minikube_driver: docker
