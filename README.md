@@ -4,10 +4,12 @@ A ansible collection of kubernetes tools.
 
 ## Roles
 
-### drerik.kubernetes.minikube
+### drerik.kubernetes.k3s
 
-Installs minikube and creates a kubernetes cluster.
+Installs k3s on your server.
 
-### drerik.kubernetes.kustomize
+## Playbooks
 
-Installs the kustomize application.
+### drerik.kubernetes.k3s_example
+
+Deploys a k3s single node cluster on servers in the group `kubernetes`.
