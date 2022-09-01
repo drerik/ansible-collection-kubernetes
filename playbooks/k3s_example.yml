@@ -1,0 +1,124 @@
+---
+- name: Deploy k3s and custom start page
+  hosts: kubernetes
+  roles:
+    - drerik.kubernetes.k3s
+  environment:
+    K8S_AUTH_KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+  vars:
+    fqdn: k3s.example.com
+    startpage_namespace: startpage
+  tasks:
+    - name: Install pip
+      ansible.builtin.apt:
+        name: pip
+        state: present
+    - name: Install python dependencies
+      ansible.builtin.pip:
+        name: kubernetes
+        state: present
+    - name: Crete namespace for nginx start page
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: "{{ startpage_namespace }}"
+    - name: Create traefik ingress routing for startpage container
+      kubernetes.core.k8s:
+        state: present
+        namespace: "{{ startpage_namespace }}"
+        definition:
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          metadata:
+            name: nginx-ingress
+            annotations:
+              kubernetes.io/ingress.class: "traefik"
+          spec:
+            tls:
+              - hosts:
+                - "{{ fqdn }}"
+            rules:
+              - host: "{{ fqdn }}"
+                http:
+                  paths:
+                    - path: /
+                      pathType: Prefix
+                      backend:
+                        service:
+                          name: nginx
+                          port:
+                            number: 80
+    - name: Create Service for nginx container
+      kubernetes.core.k8s:
+        state: present
+        namespace: "{{ startpage_namespace }}"
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: nginx
+            labels:
+              run: nginx
+          spec:
+            ports:
+              - port: 80
+                protocol: TCP
+            selector:
+              app: nginx
+    - name: Create startpage index page in a ConfigMap
+      kubernetes.core.k8s:
+        state: present
+        namespace: "{{ startpage_namespace }}"
+        definition:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: index-html-configmap
+          data:
+            index.html: |
+              <html>
+              <h1>Welcome</h1>
+              </br>
+              <h1>All hail the gummybears! </h1>
+              </html
+    - name: Create traefik ingress routing for startpage container
+      kubernetes.core.k8s:
+        state: present
+        namespace: "{{ startpage_namespace }}"
+        definition:
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            creationTimestamp: null
+            labels:
+              app: nginx
+            name: nginx
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: nginx
+            strategy: {}
+            template:
+              metadata:
+                creationTimestamp: null
+                labels:
+                  app: nginx
+              spec:
+                containers:
+                - image: nginx
+                  name: nginx
+                  ports:
+                    - containerPort: 80
+                  volumeMounts:
+                    - name: nginx-index-file
+                      mountPath: /usr/share/nginx/html/
+                volumes:
+                - name: nginx-index-file
+                  configMap:
+                    name: index-html-configmap
+                  resources: {}
+          status: {}

@@ -1,0 +1,8 @@
+---
+# handlers file for k3s
+- name: Reload and restart k3s service
+  ansible.builtin.systemd:
+    name: k3s
+    daemon_reload: true
+    state: restarted
+    enabled: true

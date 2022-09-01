@@ -1,0 +1,16 @@
+- name: Pull k3s release channel
+  ansible.builtin.uri:
+    url: "{{ k3s_release_channel_url }}"
+    return_content: yes
+  register: k3s_release_channel
+
+- name: Set latest version of current channel
+  ansible.builtin.set_fact:
+    k3s_version: "{{ item.latest }}"
+  when: item.name == k3s_channel
+  loop: "{{ k3s_release_channel.json.data }}"
+
+- name: Show k3s release channel
+  ansible.builtin.debug:
+    var: k3s_version
+  

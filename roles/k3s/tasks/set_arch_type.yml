@@ -1,0 +1,9 @@
+- name: Set arch_type fact when amd64 architecture
+  ansible.builtin.set_fact:
+    arch_type: amd64
+  when: ansible_architecture == 'x86_64'
+
+- name: Set arch_type fact when not amd64 architecture
+  ansible.builtin.set_fact:
+    arch_type: "{{ ansible_architecture }}"
+  when: ansible_architecture != 'x86_64'

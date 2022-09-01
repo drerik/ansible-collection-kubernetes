@@ -1,0 +1,53 @@
+# - name: Run RH/EL linux prerequisite
+#   block:
+#   - name: install prerequisite rpm packages
+#     ansible.builtin.yum:
+#       name:
+#         - container-selinux
+#         - selinux-policy-base
+#         - git
+#         - make
+#       state: present
+
+#   - name: install k3s_selinux package
+#     ansible.builtin.yum:
+#       name:
+#         - "{{ k3s_selinux_url }}"
+#       disable_gpg_check: true  # k3s-selinux does not currently provide gpg signing
+#       state: present
+#     register: _yum
+#     until: _yum is not failed
+#     retries: 3
+#     delay: 20
+#   when: 
+
+- name: Run Ubuntu prerequisites
+  block:
+  - name: Install Apparmor
+    ansible.builtin.apt:
+      name: apparmor
+      state: present
+  when: ansible_distribution == "Ubuntu"
+
+- name: /etc/modules-load.d/br_netfilter
+  ansible.builtin.copy:
+    content: "br_netfilter"
+    dest: /etc/modules-load.d/br_netfilter.conf
+    mode: "u=rw,g=,o="
+
+- name: enable br_netfilter
+  community.general.modprobe:
+    name: br_netfilter
+    state: present
+
+- name: Enable sysctl items
+  ansible.posix.sysctl:
+    name: "{{ item }}"
+    value: "1"
+    state: present
+    reload: true
+  loop:
+    - net.ipv4.ip_forward
+    - net.ipv6.conf.all.forwarding
+    - net.bridge.bridge-nf-call-iptables
+    - net.bridge.bridge-nf-call-ip6tables

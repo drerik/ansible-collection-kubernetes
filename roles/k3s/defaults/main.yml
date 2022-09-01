@@ -1,0 +1,18 @@
+---
+# defaults file for k3s
+
+k3s_channel: stable
+# k3s_version
+
+#k3s_config:
+k3s_config_file: /etc/rancher/k3s/config.yaml
+
+k3s_cmd: "{{ k3s_binary }} server"
+k3s_binary: /usr/local/bin/k3s
+
+k3s_github_url: https://github.com/k3s-io/k3s/releases
+
+k3s_release_channel_url: https://update.k3s.io/v1-release/channels
+k3s_storage_url: https://storage.googleapis.com/k3s-ci-builds
+
+

@@ -1,0 +1,70 @@
+---
+# tasks file for k3s
+- name: Onboard prerequisites
+  ansible.builtin.include_tasks:
+    file: prereq.yml
+
+- name: Set k3s_version to latest version
+  ansible.builtin.include_tasks:
+    file: get_latest_version.yml
+  when: k3s_version is not defined
+
+- name: Set arch_type
+  ansible.builtin.include_tasks:
+    file: set_arch_type.yml
+  when: arch_type is not defined
+
+- name: Fail if arch_type is not amd64
+  ansible.builtin.fail:
+    msg: "Ansible role only supports amd64 architecture for now."
+  when: arch_type != "amd64"
+
+- name: Save k3 config file if defined
+  ansible.builtin.copy:
+    dest: "{{ k3s_config_file }}"
+    content: "{{ k3s_config | to_nice_yaml( width=2000, explicit_start=True, explicit_end=True) }}"
+  when: k3s_config is defined
+
+- name: Download k3s
+  ansible.builtin.get_url:
+    url: https://github.com/k3s-io/k3s/releases/download/{{ k3s_version }}/k3s
+    checksum: sha256:https://github.com/k3s-io/k3s/releases/download/{{ k3s_version }}/sha256sum-{{ arch_type}}.txt
+    dest: "{{ k3s_binary }}"
+    owner: root
+    group: root
+    mode: 0755
+  register: _download
+  until: _download is not failed
+  retries: 3
+  delay: 20
+  notify: Reload and restart k3s service
+
+- name: Create symbolic liks 
+  ansible.builtin.file:
+    src: "{{ k3s_binary }}"
+    dest: /usr/local/bin/{{ item }}
+    owner: root
+    group: root
+    state: link
+  loop:
+    - kubectl
+    - crictl
+    - ctr
+
+# In the future: Create support for other architectures. See https://github.com/k3s-io/k3s/releases
+
+- name: Create systemd service
+  ansible.builtin.template:
+    src: k3s.service
+    dest: /etc/systemd/system/k3s.service
+    owner: root
+    group: root
+    mode: 0644
+  notify: Reload and restart k3s service
+
+- name: Enable service
+  ansible.builtin.systemd:
+    name: k3s
+    daemon_reload: true
+    state: started
+    enabled: true
