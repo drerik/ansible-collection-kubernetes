@@ -1,0 +1,40 @@
+---
+# tasks file for kubectl
+- name: Detect which binary architecture we should get if not specified
+  block:
+  - name: Set kubectl_arch_type fact when amd64 architecture
+    ansible.builtin.set_fact:
+      kubectl_arch_type: amd64
+    when: ansible_architecture == 'x86_64'
+
+  - name: Set arch_type fact when not amd64 architecture
+    ansible.builtin.set_fact:
+      kubectl_arch_type: "{{ ansible_architecture }}"
+    when: ansible_architecture != 'x86_64'
+  when: kubectl_arch_type is not defined
+
+- name: Get latest version number of kubectl
+  block:
+  - name: Get latest stable version of kubectl for https://dl.k8s.io
+    ansible.builtin.uri:
+      url: "{{ kubectl_release_number_url }}"
+      follow_redirects: all
+      return_content: yes
+    register: kubectl_version_page
+
+  - name: Define latest version of kubectl
+    ansible.builtin.set_fact:
+      kubectl_version: "{{ kubectl_version_page.content }}"
+  when: kubectl_version is not defined
+
+- name: Download kubectl
+  ansible.builtin.get_url:
+    url: "https://dl.k8s.io/release/{{ kubectl_version }}/bin/linux/{{ kubectl_arch_type }}/kubectl"
+    dest: /usr/local/bin/kubectl
+    mode: '0755'
+
+# - name: show kubectl version
+#   ansible.builtin.debug:
+#     msg: "https://dl.k8s.io/release/{{ kubectl_version_page.content }}/bin/linux/amd64/kubectl"
+  #failed_when: "'AWESOME' not in this.content"
+  # https://dl.k8s.io/release/{{ kubectl_version_page.content }}/bin/linux/{{ arch_type }}/kubectl

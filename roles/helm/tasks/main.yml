@@ -1,0 +1,22 @@
+---
+- name: Get latest release version if helm_release_version is not set
+  block:
+  - name: Get github releases
+    ansible.builtin.uri:
+      url: "{{ helm_github_release_api_url }}"
+    register: helm_github_releases
+
+  - name: Get last release version
+    ansible.builtin.set_fact:
+      helm_release_version: "{{ helm_github_releases.json | map(attribute='tag_name') | first }}"
+  when: helm_release_version is not defined
+
+- name: Download and extract runtime app
+  ansible.builtin.unarchive:
+    src: "{{ helm_download_url }}"
+    dest: "{{ helm_runtime_install_path }}"
+    include:
+      - "linux-amd64/{{ helm_runtime_binary }}"
+    creates: "{{ helm_runtime_install_path }}/{{ helm_runtime_binary }}"
+    mode: 0755
+    remote_src: yes

@@ -1,0 +1,9 @@
+---
+github_repo: kustomize
+github_user: kubernetes-sigs
+release_platform: "{{ ansible_system | lower }}"
+release_architecture: amd64
+github_release_api_url: https://api.github.com/repos/{{ github_user }}/{{ github_repo }}/releases
+download_url: https://github.com/{{ github_user }}/{{ github_repo }}/releases/download/{{ github_repo }}/v{{ release_version }}/{{ github_repo }}_v{{ release_version }}_linux_{{ release_architecture }}.tar.gz
+runtime_binary: kustomize
+runtime_install_path: /usr/local/bin/

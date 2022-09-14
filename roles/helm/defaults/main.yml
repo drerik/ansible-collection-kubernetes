@@ -1,0 +1,8 @@
+---
+helm_release_platform: "{{ ansible_system | lower }}"
+helm_release_architecture: amd64
+helm_github_release_api_url: https://api.github.com/repos/helm/helm/releases
+helm_download_url: https://get.helm.sh/helm-{{ helm_release_version }}-{{ helm_release_platform }}-{{ helm_release_architecture }}.tar.gz
+
+helm_runtime_binary: helm
+helm_runtime_install_path: /usr/local/bin/

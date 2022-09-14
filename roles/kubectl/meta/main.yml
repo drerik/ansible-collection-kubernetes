@@ -1,0 +1,12 @@
+galaxy_info:
+  author: Erik Kaareng-Sunde
+  description: Deploys kubectl binary
+  license: Apache-2.0
+  platforms: []
+
+  min_ansible_version: '2.1'
+
+  galaxy_tags:
+    - kubectl
+    - kubernetes
+dependencies: []
