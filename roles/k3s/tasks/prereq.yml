@@ -26,6 +26,7 @@
   - name: Install Apparmor
     ansible.builtin.apt:
       name: apparmor
+      update_cache: yes
       state: present
   when: ansible_distribution == "Ubuntu"
 
