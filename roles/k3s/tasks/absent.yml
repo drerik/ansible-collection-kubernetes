@@ -1,0 +1,34 @@
+# Stop service
+# Disable service
+# Remove service file
+- name: Stop and disable k3s service
+  ansible.builtin.systemd:
+    name: k3s
+    state: stopped
+    enabled: false
+
+- name: Copy killall script to server
+  ansible.builtin.copy:
+    src: files/k3s_kill.sh
+    dest: /tmp/k3s_kill.sh
+    mode: 0755
+- name: Run killall script
+  ansible.builtin.shell: /tmp/k3s_kill.sh
+
+
+- name: Remove k3s files
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/systemd/system/k3s.service
+    - /usr/local/bin/kubectl
+    - /usr/local/bin/crictl
+    - /usr/local/bin/ctr
+    - /etc/rancher/k3s
+    - /run/k3s
+    - /run/flannel
+    - /var/lib/rancher/k3s
+    - /var/lib/kubelet
+    - /tmp/k3s_kill.sh
+
