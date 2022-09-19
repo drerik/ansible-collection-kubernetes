@@ -11,6 +11,7 @@ No other requirements other than standard libraries.
 Role Variables
 --------------
 
+- `state`: If defined and set to 'absent' will remove the k3s instance on the server.
 - `k3s_channel`: ( Default: `stable` ) Specifies which version channel of k3s you want to install.
 - `k3s_version`: ( Default: Gets latest version from the selected channel in `k3s_channel` ) Set this to a spesific version of k3s to pin it.
 
