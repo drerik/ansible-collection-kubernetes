@@ -1,7 +1,7 @@
-Role Name
+drerik.kubernetes.helm
 =========
 
-A brief description of the role goes here.
+Installs the helm binary
 
 Requirements
 ------------
@@ -11,12 +11,17 @@ Any pre-requisites that may not be covered by Ansible itself or the role should 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+- `helm_release_platform`: ( Default: "{{ ansible_system | lower }}" ) Which platform the system is on ( Linux/Windows etc. )
+- `helm_release_architecture`: ( Default: "amd64" ) Which architecture the system is using.
+- `helm_github_release_api_url`: ( Default: "https://api.github.com/repos/helm/helm/releases" ) The url for the release api
+- `helm_download_url`: ( Default: "https://get.helm.sh/helm-{{ helm_release_version }}-{{ helm_release_platform }}-{{ helm_release_architecture }}.tar.gz" ) Download url for archive.
+- `helm_runtime_binary`: ( Default: "helm" ) Name of the helm binary
+- `helm_runtime_install_path`: ( Default: "/usr/local/bin/" ) Where the binary should be installed to.
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+None
 
 Example Playbook
 ----------------
@@ -25,14 +30,14 @@ Including an example of how to use your role (for instance, with variables passe
 
     - hosts: servers
       roles:
-         - { role: username.rolename, x: 42 }
+         - drerik.kubernetes.helm
 
 License
 -------
 
-BSD
+Apache-2.0
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Erik Kaareng-Sunde
