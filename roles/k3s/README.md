@@ -46,6 +46,10 @@ Simple example:
 
 For example with a simple webpage/startpage deployed, see the playbook `k3s_example` in this collection.
 
+You can uninstall k3s by setting the state to `absent`.
+```bash
+ansible yourserver -m ansible.builtin.import_role -a 'name=drerik.kubernetes.k3s' -e 'state=absent'
+```
 
 
 License
